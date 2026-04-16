@@ -1,14 +1,30 @@
 package main
 
 import (
-	"hieu/blogging/api/handler"
+	"fmt"
+	"hieu/goblog/backend/controllers" // Import cái file Auth lúc nãy
+	"hieu/goblog/backend/database"
+	"hieu/goblog/backend/models"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	database.ConnectDB()
+	database.DB.AutoMigrate(&models.User{})
+
 	r := gin.Default()
-	Postblog := handler.NewPostBlogHandler()
-	r.POST("/posts", Postblog.PostBlog)
-	r.Run(":8080")
+
+	r.POST("/api/register", controllers.Register)
+	r.POST("/api/login", controllers.Login)
+	r.POST("/api/logout", controllers.Logout)
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	fmt.Printf("listening and serving HTTP on: localhost:%s\n", port)
+	r.Run(":" + port)
 }
