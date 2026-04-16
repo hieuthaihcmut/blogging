@@ -1,20 +1,21 @@
-# GoBlog Frontend - Vue.js
+# GoBlog Frontend - React
 
-Đây là frontend cho ứng dụng GoBlog sử dụng Vue.js 3 và Vite.
+Đây là frontend cho ứng dụng GoBlog sử dụng React, React Router và Vite.
 
 ## 📋 Cấu trúc dự án
 
 ```
 frontend/
 ├── src/
-│   ├── views/          # Các trang chính
-│   │   ├── Home.vue   # Trang chủ
-│   │   ├── Login.vue  # Trang đăng nhập
-│   │   └── Register.vue  # Trang đăng ký
-│   ├── router/         # Vue Router
-│   │   └── index.js    # Cấu hình routing
-│   ├── App.vue        # Component gốc
-│   └── main.js        # Entry point
+│   ├── pages/          # Các trang chính
+│   │   ├── Home.jsx    # Trang chủ
+│   │   ├── Login.jsx   # Trang đăng nhập
+│   │   └── Register.jsx # Trang đăng ký
+│   ├── data/           # Dữ liệu mẫu cho giao diện
+│   ├── services/       # API client dùng chung
+│   ├── App.jsx         # Component gốc
+│   ├── main.jsx        # Entry point
+│   └── styles.css      # Global styles
 ├── index.html         # HTML chính
 ├── package.json       # Package dependencies
 ├── vite.config.js     # Cấu hình Vite
@@ -56,12 +57,12 @@ Frontend kết nối với các endpoints sau từ backend:
 
 ## 🔐 Authentication
 
-Token được lưu trữ trong `localStorage` với key là `token`. Khi đăng nhập thành công, token sẽ được lưu tự động.
+Token được lưu trữ trong `localStorage` với key là `token`. Khi đăng nhập thành công, token sẽ được lưu tự động và dùng cho nút đăng xuất.
 
 ## 📦 Dependencies
 
-- **Vue 3** - Framework frontend
-- **Vue Router** - Routing và navigation
+- **React** - Framework frontend
+- **React Router** - Routing và navigation
 - **Axios** - HTTP client cho API calls
 - **Vite** - Build tool
 
@@ -71,7 +72,7 @@ Vite được cấu hình để proxy các request từ `/api` đến backend (`
 
 ## 🎨 Styling
 
-Ứng dụng sử dụng CSS được viết trực tiếp trong các `.vue` files với `<style scoped>` để tách biệt styles cho từng component.
+Ứng dụng sử dụng CSS tập trung trong `src/styles.css` để giữ giao diện đồng nhất giữa các trang.
 
 ## 📝 Ghi chú
 

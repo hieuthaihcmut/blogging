@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"hieu/goblog/backend/controllers" // Import cái file Auth lúc nãy
-	"hieu/goblog/backend/database"
-	"hieu/goblog/backend/models"
+	"hieu/goblog/controllers"
+	"hieu/goblog/database"
+	"hieu/goblog/models"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -19,6 +19,12 @@ func main() {
 	r.POST("/api/register", controllers.Register)
 	r.POST("/api/login", controllers.Login)
 	r.POST("/api/logout", controllers.Logout)
+
+	r.GET("/api/posts", controllers.GetAllPosts)       // Xem tất cả
+	r.GET("/api/posts/:id", controllers.GetPostByID)   // Xem chi tiết 1 bài
+	r.POST("/api/posts", controllers.CreatePost)       // Tạo bài mới
+	r.PUT("/api/posts/:id", controllers.UpdatePost)    // Sửa bài (dùng PUT)
+	r.DELETE("/api/posts/:id", controllers.DeletePost) // Xóa bài
 
 	port := os.Getenv("PORT")
 	if port == "" {

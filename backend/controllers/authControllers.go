@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"hieu/goblog/backend/database"
-	"hieu/goblog/backend/models"
+	"hieu/goblog/database"
+	"hieu/goblog/models"
 	"net/http"
 	"os"
 	"time"

@@ -42,14 +42,20 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 
+	// LẤY THÔNG TIN NGƯỜI DÙNG TỪ MIDDLEWARE
+	// (c.MustGet sẽ lấy cái "currentUser" mà ta vừa Set ở file requireAuth.go)
+	user, _ := c.Get("currentUser")
+	loggedInUser := user.(models.User)
+
 	post := models.Post{
 		Title:   input.Title,
 		Content: input.Content,
-		Author:  input.Author,
+		// Không tin tưởng input.Author từ ngoài gửi vào nữa, lấy thẳng Username của tài khoản
+		Author: loggedInUser.Username,
 	}
 
 	database.DB.Create(&post)
-	c.JSON(http.StatusOK, gin.H{"data": post})
+	c.JSON(http.StatusOK, gin.H{"message": "Đăng bài thành công!", "data": post})
 }
 
 // 4. Cập nhật (Sửa) bài viết
