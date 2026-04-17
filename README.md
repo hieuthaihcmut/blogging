@@ -12,8 +12,8 @@ GoBlog là một ứng dụng web fullstack cho phép người dùng:
 ### Frontend
 - React 18
 - React Router
-- Axios
-- Vite
+<!-- - Axios
+- Vite -->
 - CSS thuần 
 
 ### Backend
