@@ -6,19 +6,24 @@ import (
 	"hieu/goblog/models"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 func RequireAuth(c *gin.Context) {
-	// Login đang set token vào cookie Authorization
+	// Ưu tiên token trong cookie, fallback sang Bearer token từ header.
 	tokenString, err := c.Cookie("Authorization")
+	if err != nil || strings.TrimSpace(tokenString) == "" {
+		authHeader := c.GetHeader("Authorization")
+		if strings.HasPrefix(strings.ToLower(authHeader), "bearer ") {
+			tokenString = strings.TrimSpace(authHeader[7:])
+		}
+	}
 
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": "unauthenticated",
-		})
+	if strings.TrimSpace(tokenString) == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthenticated"})
 		return
 	}
 

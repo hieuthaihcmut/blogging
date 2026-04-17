@@ -98,8 +98,9 @@ func Login(c *gin.Context) {
 	c.SetCookie("Authorization", tokenString, 3600*24*7, "/", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Đăng nhập thành công",
-		"token":   tokenString, // Gửi về cho Frontend (React/Vue) cất đi
+		"message":  "Đăng nhập thành công",
+		"token":    tokenString, // Gửi về cho Frontend (React/Vue) cất đi
+		"username": user.Username,
 	})
 }
 

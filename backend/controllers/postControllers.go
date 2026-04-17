@@ -4,6 +4,7 @@ import (
 	"hieu/goblog/database"
 	"hieu/goblog/models"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +14,29 @@ type PostInput struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`
 	Desc    string `json:"desc"`
+}
+
+func getCurrentUserFromContext(c *gin.Context) (models.User, bool) {
+	user, exists := c.Get("currentUser")
+	if !exists {
+		return models.User{}, false
+	}
+
+	loggedInUser, ok := user.(models.User)
+	if !ok {
+		return models.User{}, false
+	}
+
+	return loggedInUser, true
+}
+
+func canManagePost(c *gin.Context, post models.Post) bool {
+	loggedInUser, ok := getCurrentUserFromContext(c)
+	if !ok {
+		return false
+	}
+
+	return strings.EqualFold(post.Author, loggedInUser.Username) || post.UserID == loggedInUser.ID
 }
 
 // 1. Lấy danh sách TẤT CẢ bài viết
@@ -90,6 +114,11 @@ func UpdatePost(c *gin.Context) {
 		return
 	}
 
+	if !canManagePost(c, post) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Bạn chỉ có thể sửa bài viết của chính mình"})
+		return
+	}
+
 	var input PostInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dữ liệu không hợp lệ"})
@@ -127,6 +156,11 @@ func DeletePost(c *gin.Context) {
 	// Kiểm tra xem bài viết có tồn tại không trước khi xóa
 	if err := database.DB.Where("id = ?", c.Param("id")).First(&post).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy bài viết!"})
+		return
+	}
+
+	if !canManagePost(c, post) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Bạn chỉ có thể xóa bài viết của chính mình"})
 		return
 	}
 

@@ -25,12 +25,14 @@ frontend/
 ## 🚀 Khởi động
 
 ### 1. Cài đặt dependencies
+
 ```bash
 cd frontend
 npm install
 ```
 
 ### 2. Chạy development server
+
 ```bash
 npm run dev
 ```
@@ -38,11 +40,13 @@ npm run dev
 Frontend sẽ chạy tại `http://localhost:3000`
 
 ### 3. Build cho production
+
 ```bash
 npm run build
 ```
 
 ### 4. Preview build production
+
 ```bash
 npm run preview
 ```
