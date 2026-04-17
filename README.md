@@ -6,7 +6,6 @@ GoBlog là một ứng dụng web fullstack cho phép người dùng:
 - đọc bài viết chi tiết và bình luận
 - đặt câu hỏi backend và trả lời theo mô hình Q&A
 
-Dự án được xây dựng để mô phỏng một luồng sản phẩm thực tế: frontend hiện đại, backend API rõ ràng, dữ liệu lưu trữ trong PostgreSQL, và xác thực người dùng bằng JWT.
 
 ## Technical Stack
 
@@ -15,45 +14,37 @@ Dự án được xây dựng để mô phỏng một luồng sản phẩm thự
 - React Router
 - Axios
 - Vite
-- CSS thuần (custom UI)
+- CSS thuần 
 
 ### Backend
 - Go
 - Gin (HTTP framework)
 - GORM (ORM)
 - PostgreSQL
-- JWT Authentication (cookie + bearer token)
+- JWT Authentication
 
 ### DevOps / Runtime
-- Docker Compose (chạy PostgreSQL)
-- Makefile (một số lệnh tiện ích)
+- Docker Compose 
+- Makefile
 
 ## Kiến trúc tổng quan
 
-```text
-[React + Vite Frontend]  -->  [/api/*]  -->  [Gin REST API]
-                                      \--> [Auth Middleware (JWT)]
-                                      \--> [GORM]
-                                      \--> [PostgreSQL]
-```
 
 ![Blogging Web Architecture](example_image/blogging_web_architecture.svg)
 
 ## Tính năng nổi bật
 
 - Trang chủ tổng hợp bài viết mới nhất + câu hỏi mới nhất
-- Blog cá nhân với phân quyền tác giả (owner-only edit/delete)
+- Blog cá nhân với phân quyền tác giả và quản lý bài viết
 - Chi tiết bài viết có bình luận theo thời gian thực API
-- Khu vực Hỏi đáp backend (questions/answers)
+- Khu vực Hỏi đáp backend cho phép đặt câu hỏi và trả lời
 - Tìm kiếm bài viết theo tiêu đề + phân trang
-- Seed dữ liệu mẫu cho bài viết và câu hỏi
 
 ## Cấu trúc thư mục
 
 ```text
 blogging/
 ├─ backend/
-│  ├─ bootstrap/           # seed dữ liệu mẫu
 │  ├─ controllers/         # handlers cho auth/posts/comments/questions
 │  ├─ database/            # kết nối DB
 │  ├─ middleware/          # RequireAuth
@@ -66,7 +57,6 @@ blogging/
 │  │  ├─ services/         # axios api client
 │  │  └─ styles.css
 │  └─ vite.config.js
-├─ example_image/          # ảnh demo giao diện
 ├─ docker-compose.yml
 └─ goblog.sql
 ```
@@ -170,13 +160,6 @@ Frontend mặc định: http://localhost:3000
 
 ### Blog cá nhân
 ![My Blog](example_image/Screenshot%202026-04-17%20213853.png)
-
-## Ghi chú phát triển
-
-- Frontend đã cấu hình proxy /api về backend trong vite.config.js
-- API client chung đặt tại frontend/src/services/api.js
-- Seed dữ liệu được gọi lúc backend khởi động (bootstrap.SeedAll)
-- Muốn thấy dữ liệu seed mới nhất: restart backend
 
 ## Định hướng mở rộng
 
