@@ -1,10 +1,10 @@
 # GoBlog - Fullstack Blog & Q&A Platform
 
 GoBlog là một ứng dụng web fullstack cho phép người dùng:
-- đăng ký, đăng nhập, đăng xuất
-- quản lý blog cá nhân (tạo, sửa, xóa bài viết)
-- đọc bài viết chi tiết và bình luận
-- đặt câu hỏi backend và trả lời theo mô hình Q&A
+- Đăng ký, đăng nhập, đăng xuất
+- Quản lý blog cá nhân (tạo, sửa, xóa bài viết)
+- Đọc bài viết chi tiết và bình luận
+- Đặt câu hỏi backend và trả lời theo mô hình Q&A
 
 
 ## Technical Stack
