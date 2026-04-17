@@ -1,16 +1,63 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../services/api'
-import { posts, questions, topWriters } from '../data/mockContent'
+import { questions, topWriters } from '../data/mockContent'
 
 function Home() {
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [posts, setPosts] = useState([])
+  const [loadingPosts, setLoadingPosts] = useState(true)
+  const [postsError, setPostsError] = useState('')
 
   useEffect(() => {
     setIsLoggedIn(Boolean(localStorage.getItem('token')))
   }, [])
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoadingPosts(true)
+      setPostsError('')
+      try {
+        const response = await api.get('/posts')
+        const apiPosts = Array.isArray(response?.data?.data) ? response.data.data : []
+        const sortedPosts = [...apiPosts].sort((a, b) => {
+          const dateA = new Date(a.created_at || a.CreatedAt || 0).getTime()
+          const dateB = new Date(b.created_at || b.CreatedAt || 0).getTime()
+          return dateB - dateA
+        })
+        setPosts(sortedPosts)
+      } catch (error) {
+        setPostsError(error.response?.data?.error || 'Khong the tai danh sach bai viet')
+      } finally {
+        setLoadingPosts(false)
+      }
+    }
+
+    fetchPosts()
+  }, [])
+
+  const formatDate = (value) => {
+    if (!value) {
+      return 'Moi dang'
+    }
+
+    const parsedDate = new Date(value)
+    if (Number.isNaN(parsedDate.getTime())) {
+      return 'Moi dang'
+    }
+
+    return parsedDate.toLocaleString('vi-VN')
+  }
+
+  const getExcerpt = (value) => {
+    if (!value) {
+      return 'Bai viet chua co noi dung xem truoc.'
+    }
+
+    return value.length > 220 ? `${value.slice(0, 220)}...` : value
+  }
 
   const logout = async () => {
     if (isLoggingOut) {
@@ -37,7 +84,7 @@ function Home() {
           <div className="brand">GOBLO</div>
 
           <nav className="menu">
-            <a href="#">Bai Viet</a>
+            <Link to="/posts">Bai Viet</Link>
             <a href="#">Hoi dap</a>
             <a href="#">Thao luan</a>
           </nav>
@@ -66,33 +113,41 @@ function Home() {
 
       <main className="layout">
         <section className="feed">
-          {posts.map((post) => (
-            <article key={post.id} className="post-card">
-              <div className="post-head">
-                <img src={post.avatar} alt={post.author} className="avatar" />
+          <div className="panel">
+            <h3>Bai viet moi nhat</h3>
+          </div>
+
+          {loadingPosts ? (
+            <div className="empty-state">Dang tai bai viet moi nhat...</div>
+          ) : postsError ? (
+            <div className="empty-state">{postsError}</div>
+          ) : posts.length === 0 ? (
+            <div className="empty-state">Chua co bai viet nao duoc dang.</div>
+          ) : (
+            posts.map((post) => (
+              <article key={post.id || post.ID} className="post-item">
                 <div>
                   <p className="meta-line">
-                    <strong>{post.author}</strong>
-                    <span>{post.time}</span>
-                    <span>{post.read}</span>
+                    <strong>{post.author || post.Author || 'Unknown'}</strong>
+                    <span>{formatDate(post.created_at || post.CreatedAt)}</span>
                   </p>
-                  <h2>{post.title}</h2>
+                  <h2>
+                    <Link to={`/posts/${post.id || post.ID}`} className="post-link">
+                      {post.title || post.Title}
+                    </Link>
+                  </h2>
+                  <p className="post-preview">{getExcerpt(post.content || post.Content)}</p>
+                  <Link to={`/posts/${post.id || post.ID}`} className="post-preview-link">
+                    Xem chi tiet
+                  </Link>
                 </div>
-              </div>
 
-              <div className="tags">
-                {post.tags.map((tag) => (
-                  <span key={tag}>{tag}</span>
-                ))}
-              </div>
-
-              <div className="stats">
-                <span>Views {post.views}</span>
-                <span>Bookmarks {post.bookmarks}</span>
-                <span>Comments {post.comments}</span>
-              </div>
-            </article>
-          ))}
+                <div className="post-item-actions">
+                  <span className="post-badge">Moi nhat</span>
+                </div>
+              </article>
+            ))
+          )}
         </section>
 
         <aside className="sidebar">

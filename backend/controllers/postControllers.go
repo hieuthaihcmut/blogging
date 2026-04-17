@@ -10,16 +10,19 @@ import (
 
 // Cấu trúc dữ liệu client gửi lên khi tạo/sửa bài
 type PostInput struct {
-	Title   string `json:"title" binding:"required"`
-	Content string `json:"content" binding:"required"`
-	Author  string `json:"author"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Desc    string `json:"desc"`
 }
 
 // 1. Lấy danh sách TẤT CẢ bài viết
 func GetAllPosts(c *gin.Context) {
 	var posts []models.Post
 	// Lấy tất cả bài viết, sắp xếp theo thời gian mới nhất
-	database.DB.Order("created_at desc").Find(&posts)
+	if err := database.DB.Order("created_at desc").Find(&posts).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể lấy danh sách bài viết"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"data": posts})
 }
 
@@ -42,19 +45,39 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 
+	content := input.Content
+	if content == "" {
+		content = input.Desc
+	}
+	if input.Title == "" || content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dữ liệu không hợp lệ"})
+		return
+	}
+
 	// LẤY THÔNG TIN NGƯỜI DÙNG TỪ MIDDLEWARE
 	// (c.MustGet sẽ lấy cái "currentUser" mà ta vừa Set ở file requireAuth.go)
-	user, _ := c.Get("currentUser")
-	loggedInUser := user.(models.User)
+	user, exists := c.Get("currentUser")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Bạn chưa đăng nhập!"})
+		return
+	}
+	loggedInUser, ok := user.(models.User)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Không thể xác thực người dùng!"})
+		return
+	}
 
 	post := models.Post{
 		Title:   input.Title,
-		Content: input.Content,
-		// Không tin tưởng input.Author từ ngoài gửi vào nữa, lấy thẳng Username của tài khoản
-		Author: loggedInUser.Username,
+		Content: content,
+		Author:  loggedInUser.Username,
+		UserID:  loggedInUser.ID,
 	}
 
-	database.DB.Create(&post)
+	if err := database.DB.Create(&post).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo bài viết"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"message": "Đăng bài thành công!", "data": post})
 }
 
@@ -73,12 +96,28 @@ func UpdatePost(c *gin.Context) {
 		return
 	}
 
+	content := input.Content
+	if content == "" {
+		content = input.Desc
+	}
+	if input.Title == "" || content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dữ liệu không hợp lệ"})
+		return
+	}
+
 	// Cập nhật dữ liệu
-	database.DB.Model(&post).Updates(models.Post{
+	if err := database.DB.Model(&post).Updates(models.Post{
 		Title:   input.Title,
-		Content: input.Content,
-		Author:  input.Author,
-	})
+		Content: content,
+	}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể cập nhật bài viết"})
+		return
+	}
+
+	if err := database.DB.Where("id = ?", c.Param("id")).First(&post).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tải lại dữ liệu bài viết"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"data": post})
 }
 
@@ -91,6 +130,9 @@ func DeletePost(c *gin.Context) {
 		return
 	}
 
-	database.DB.Delete(&post)
+	if err := database.DB.Delete(&post).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể xóa bài viết"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"message": "Đã xóa bài viết thành công!"})
 }

@@ -80,7 +80,7 @@ func Login(c *gin.Context) {
 
 	// Nếu đúng, tạo JWT Token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,                                   // ID người dùng (Subject)
+		"sub": user.ID.String(),                          // ID người dùng (Subject)
 		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(), // Hạn sử dụng: 7 ngày
 	})
 
@@ -95,7 +95,7 @@ func Login(c *gin.Context) {
 	// Trả Token về cho Client (có thể lưu ở Cookie hoặc gửi qua JSON)
 	// Ở đây mình chọn cách trả về cục JSON và set luôn Cookie cho an toàn
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, 3600*24*7, "", "", false, true)
+	c.SetCookie("Authorization", tokenString, 3600*24*7, "/", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Đăng nhập thành công",
@@ -106,6 +106,6 @@ func Login(c *gin.Context) {
 // 4. Hàm Đăng Xuất (Logout)
 func Logout(c *gin.Context) {
 	// Xóa Cookie chứa token
-	c.SetCookie("Authorization", "", -1, "", "", false, true)
+	c.SetCookie("Authorization", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{"message": "Đăng xuất thành công"})
 }

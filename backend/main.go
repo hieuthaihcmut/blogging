@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"hieu/goblog/controllers"
 	"hieu/goblog/database"
+	"hieu/goblog/middleware"
 	"hieu/goblog/models"
 	"os"
 
@@ -12,7 +13,7 @@ import (
 
 func main() {
 	database.ConnectDB()
-	database.DB.AutoMigrate(&models.User{})
+	database.DB.AutoMigrate(&models.User{}, &models.Post{})
 
 	r := gin.Default()
 
@@ -20,11 +21,11 @@ func main() {
 	r.POST("/api/login", controllers.Login)
 	r.POST("/api/logout", controllers.Logout)
 
-	r.GET("/api/posts", controllers.GetAllPosts)       // Xem tất cả
-	r.GET("/api/posts/:id", controllers.GetPostByID)   // Xem chi tiết 1 bài
-	r.POST("/api/posts", controllers.CreatePost)       // Tạo bài mới
-	r.PUT("/api/posts/:id", controllers.UpdatePost)    // Sửa bài (dùng PUT)
-	r.DELETE("/api/posts/:id", controllers.DeletePost) // Xóa bài
+	r.GET("/api/posts", controllers.GetAllPosts)                               // Xem tất cả
+	r.GET("/api/posts/:id", controllers.GetPostByID)                           // Xem chi tiết 1 bài
+	r.POST("/api/posts", middleware.RequireAuth, controllers.CreatePost)       // Tạo bài mới
+	r.PUT("/api/posts/:id", middleware.RequireAuth, controllers.UpdatePost)    // Sửa bài (dùng PUT)
+	r.DELETE("/api/posts/:id", middleware.RequireAuth, controllers.DeletePost) // Xóa bài
 
 	port := os.Getenv("PORT")
 	if port == "" {
