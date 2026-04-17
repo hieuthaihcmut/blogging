@@ -37,6 +37,8 @@ Dự án được xây dựng để mô phỏng một luồng sản phẩm thự
                                       \--> [PostgreSQL]
 ```
 
+![Blogging Web Architecture](example_image/blogging_web_architecture.svg)
+
 ## Tính năng nổi bật
 
 - Trang chủ tổng hợp bài viết mới nhất + câu hỏi mới nhất
@@ -71,6 +73,32 @@ blogging/
 
 ## Hướng dẫn chạy nhanh
 
+### Cách 0) Chạy toàn bộ bằng Docker (khuyến nghị)
+
+1. Tạo file `.env` từ `.env.example` (ở thư mục gốc) và chỉnh thông tin DB nếu cần.
+2. Chạy lệnh:
+
+```bash
+docker compose up -d --build
+```
+
+3. Truy cập:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080
+- PostgreSQL: localhost:${DB_PORT} (mặc định `5434`)
+
+4. Dừng toàn bộ:
+
+```bash
+docker compose down
+```
+
+5. Dừng và xóa luôn dữ liệu DB volume:
+
+```bash
+docker compose down -v
+```
+
 ### 1) Chạy PostgreSQL
 
 ```bash
@@ -96,6 +124,12 @@ npm run dev
 ```
 
 Frontend mặc định: http://localhost:3000
+
+## Docker Services
+
+- `db`: PostgreSQL 15 (persist dữ liệu qua volume `postgres_data`)
+- `backend`: Go + Gin API, tự migrate schema và seed dữ liệu khi khởi động
+- `frontend`: build React bằng Vite và phục vụ qua Nginx, đồng thời proxy `/api` sang backend
 
 ## API chính
 
